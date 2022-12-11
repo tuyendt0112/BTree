@@ -1,128 +1,87 @@
 package thuattoan;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Bnode<Element extends Comparable <Element> > {
+public class Bnode<E extends Comparable<E>> implements Serializable {
+    private int fnum; // check if the number in 1 node is full or not
+    private Bnode<E> father; // father node
+    private ArrayList<Bnode<E>> children = new ArrayList<Bnode<E>>(); // list of children node
+    private ArrayList<E> keys = new ArrayList<>(); // list of keys
 
-	private int fullnum; 
-	// để kiểm tra node hay key nào đó đã đúng yêu cầu so với bậc của Btree hay chưa
-    /*
-     * nếu n là bậc của cây
-     * Nút (node) : mỗi nút bên trong có tối đa (n-1) khóa và tối thiểu [n/2] -1 khóa
-     * Trừ nút gốc có tối đa n nút con và có tối thiểu [n/2] nút con
-     * nút gốc có tối thiểu 1 khóa và có ít nhất 2 nút con */
+    public Bnode() {
+    }
 
-    /* giả sử bặc của cây là n = 3
-     * mỗi nút bên trong có tối đa 3-1 khóa , và có tối thiểu là [3/2] - 1 = [2]-1 = 1 khóa
-     * mỗi nút con - trừ nút gốc có tối đa 3 nút con, và có tối thiểu 2 nút con
-     * */
+    public Bnode(int order) { // order of the tree {3,4,5}
+        fnum = order - 1; // each node can have (order-1) num
+    }
 
-    /*
-     * giả sử bậc của cây là n = 6
-     * mỗi nút bên trong có tối đa 6-1=5 khóa , và có tối thiểu là [6/2]-1 = 2 khóa
-     * mỗi nút con - trừ nút gốc có tối đa 6 nút con và tối thiểu [6/2] = 3 nút con
-     */
+    //basic getters and setters
+    public Bnode<E> getFather() {
+        return father;
+    }
 
-	private Bnode<Element> father; // node cha 
-	// array children de luu cac node con
-	private ArrayList<Bnode <Element>> children = new ArrayList<>(); 
-	private ArrayList<Element> keys = new ArrayList<>();
-	
-	
-	public Bnode() {
-		
-	}
-	
-	// n la bac cua cay 
-	public Bnode(int n) {
-		fullnum = n - 1;
-	}
-	
-	
-	public Bnode<Element> getFather() {
-		return father;
-	}
-	
-	public void setFather(Bnode<Element> father) {
-		this.father = father;
-	}
-	
-	
-	public ArrayList<Bnode<Element>> getChildren(){
-		return children;
-	}
-	
-	
-	public ArrayList<Element> getKeys(){
-		return keys;
-	}
-	// them node con vao tap children , o vi tri pos
-	public void addChild(Bnode<Element> node, int pos )	{
-		children.add(pos, node);
-	}
-	// xoa 1 node con o trong tap con, tai vi tri pos
-	public void removeChild(int pos) {
-		children.remove(pos);
-	}
-	// lay node con o vi tri pos trong tap children
-	public Bnode getChild(int pos) {
-		return children.get(pos);
-	}
-	//them 1 key vao tap keys tai vi tri pos 
-	public void addKey(Element K, int pos) {
-		keys.add(pos,K);
-	}
-	// xoa 1 key trong tap keys tai vi tri pos
-	public void removeKey(int pos) {
-		keys.remove(pos);
-	}
-	// lay gia tri 1 key tai vi tri pos 
-	public Element getKey(int pos) {
-		return keys.get(pos);
-	}
-	// lay kich thuoc cua mang keys
-	public int getSize() {
-		return keys.size();
-	}
-	
-	
-	// mot so ham kiem tra cay 
-	
-	// kiem tra cay da day hay chua , kiem tra so luong khoa
-	
-	public boolean isFull() {
-		if (fullnum == keys.size()) {
-			return true;
-		}else {
-			return false;
-		}
-	}
-	
-	// kiem tra khoa cay rong 
-	public boolean isNull() {
-		if ( keys.isEmpty()) {
-			return true;
-		}else {
-			return false;
-		}
-	}
-	
-	// kiem tra so luong khoa co vuot qua hay kh 
-	public boolean isOverflow() {
-		if(fullnum < keys.size()) {
-			return true;
-		}else {
-			return false;
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+    public void setFather(Bnode<E> father) {
+        this.father = father;
+    }
+
+    public ArrayList<Bnode<E>> getChildren() {
+        return children;
+    }
+    // function return a child node , at index position
+    public Bnode<E> getChild(int index) {
+        return children.get(index);
+    }
+
+    // function use to add , 1 node to the index position
+    public void addChild(int index, Bnode<E> node) {
+        children.add(index, node);
+    }
+
+    // function use to remove 1 node to the index position
+    public void removeChild(int index) {
+        children.remove(index);
+    }
+    // function return 1 key at the index position
+    public E getKey(int index) {
+        return keys.get(index);
+    }
+
+    public void addKey(int index, E element) {
+        keys.add(index, element);
+    }
+
+    public void removeKey(int index) {
+        keys.remove(index);
+    }
+
+    public ArrayList<E> getKeys() {
+        return keys;
+    }
+
+    //check if the node is full
+    public boolean isFull() {
+        return fnum == keys.size();
+    }
+    //check if node has more elements than order-1
+    public boolean isOverflow() {
+        return fnum < keys.size();
+    }
+
+    public boolean isNull() {
+        return keys.isEmpty();
+    }
+
+    public int getSize() {
+        return keys.size();
+    }
+
+    // function use to check if the node is last internal node
+    public boolean isLastInternalNode() {
+        if (keys.size() == 0)
+            return false; //return false if it is a empty
+        for (Bnode<E> node : children)
+            if (node.keys.size() != 0)
+                return false;  //if any children of that node is non zero
+        return true; // return true if it is a leaf
+    }
 }
